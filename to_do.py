@@ -36,14 +36,15 @@ def view():
     start()
 
 def update():
-        # Access the JSON file with the tasks in
+    # Access the JSON file with the tasks in
     with open("tasks.JSON", "r") as openfile:
         to_do_list = json.load(openfile)
     num = 1
 
     # Iterate over the list and print the tasks from their dictionaries
     for task in to_do_list:
-        print(f"{num}: {task['task']}   Status: {task['status']}")
+        print(f"""     [ {num} ] Task: {task['task']}
+              Status: {task['status']}""")
         num += 1
 
     # Take the user input for which task they want to update, cathcing the error of not entering a number
@@ -53,36 +54,65 @@ def update():
         print("Oops! You need to enter a number!")
         update()
 
-    task_to_update = to_do_list[task_to_update_input - 1]
+    if task_to_update_input > len(to_do_list):
+        print(f"Oops! You need to enter a number between 1 and {num - 1}")
+        print(" ")
+        update()
+    else:
+        task_to_update = to_do_list[task_to_update_input - 1]
 
-    updated_task = updating(task_to_update)
+        updating(task_to_update, task_to_update_input - 1)
+    """"
+    to_do_list.pop(task_to_update_input - 1)
+    print(updated_task)
+    to_do_list.insert(task_to_update_input - 1, updated_task)
+
+    # Add dictionary to JSON file
+    with open("tasks.JSON", "w") as outfile:
+        json.dump(to_do_list, outfile)
+
+    print("Task has been updated!")
+    """
+    start()
 
 
 
-def updating(task):
+def updating(task, update):
     print("""
           Do you want to update:
           [ 1 ] Task
           [ 2 ] Status
           [ 3 ] Done
           """)
-
     try:
         part_to_update = int(input())
     except ValueError:
         print("Oops! You need to enter a number!")
-        updating(task)
+        updating(task, update)
 
     if part_to_update == 1:
         updated_task = input(f"Old task: {task['task']}. New task: ")
         task["task"] = updated_task
+        updating(task, update)
     if part_to_update == 2:
         updated_status = input(f"Old status: {task['status']}. New status: ")
         task["status"] = updated_status
+        updating(task, update)
     if part_to_update == 3:
-        return task
+        # Access the JSON file with the tasks in
+        with open("tasks.JSON", "r") as openfile:
+            to_do_list = json.load(openfile)
 
-    updating()
+        to_do_list.pop(update)
+        to_do_list.insert(update, task)
+
+        # Add dictionary to JSON file
+        with open("tasks.JSON", "w") as outfile:
+            json.dump(to_do_list, outfile)
+
+        print("Task has been updated!")
+
+
 
 
 def delete():
@@ -93,7 +123,8 @@ def delete():
 
     # Iterate over the list and print the tasks from their dictionaries
     for task in to_do_list:
-        print(f"{num}: {task['task']}   Status: {task['status']}")
+        print(f"""     [ {num} ] Task: {task['task']}
+              Status: {task['status']}""")
         num += 1
 
     # Take the user input for which task they want to delete, cathcing the error of not entering a number
@@ -104,9 +135,10 @@ def delete():
         delete()
 
     to_do_list.pop(task_to_delete - 1)
+    num = 1
     for task in to_do_list:
-        num = 1
-        print(f"{num}: {task['task']}   Status: {task['status']}")
+        print(f"""     [ {num} ] Task: {task['task']}
+              Status: {task['status']}""")
         num += 1
 
     # Add dictionary to JSON file
@@ -131,21 +163,22 @@ def start():
     )
 
     # Allow the user to input their choice of what they want to do
-    user_choice = input("Enter the number for what you want to do: ")
-
-    # Run the command the user has chosen
-    if user_choice == "1":
-        add()
-    if user_choice == "2":
-        view()
-    if user_choice == "3":
-        update()
-    if user_choice == "4":
-        delete()
-    if user_choice == "5":
-        print("Thank you for viewing your to-do list.")
-    else:
+    try:
+        user_choice = int(input("Enter the number for what you want to do: "))
+    except ValueError:
         print("You have made an invalid input. Please enter a number between 1 & 5")
         start()
+
+    # Run the command the user has chosen
+    if user_choice == 1:
+        add()
+    if user_choice == 2:
+        view()
+    if user_choice == 3:
+        update()
+    if user_choice == 4:
+        delete()
+    if user_choice == 5:
+        print("Thank you for viewing your to-do list.")
 
 start()
