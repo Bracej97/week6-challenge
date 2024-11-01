@@ -11,12 +11,13 @@ def add():
         "status": status_input
     }
 
+    # Pull the task list for appending of the new task
     with open("tasks.JSON", "r") as openfile:
         existing_tasks = json.load(openfile)
 
     existing_tasks.append(full_task)
 
-    # Add dictionary to JSON file
+    # Reupload the list to the JSON file
     with open("tasks.JSON", "w") as outfile:
         json.dump(existing_tasks, outfile)
 
@@ -31,7 +32,8 @@ def view():
 
     # Iterate over the list and print the tasks from their dictionaries
     for task in to_do_list:
-        print(f"{num}: {task['task']}   Status: {task['status']}")
+        print(f"""     [ {num} ] Task: {task['task']}
+              Status: {task['status']}""")
         num += 1
     start()
 
@@ -47,13 +49,14 @@ def update():
               Status: {task['status']}""")
         num += 1
 
-    # Take the user input for which task they want to update, cathcing the error of not entering a number
+    # Take the user input for which task they want to update, catching the error of not entering a number
     try:
         task_to_update_input = int(input("Which task do you want to update: "))
     except ValueError:
         print("Oops! You need to enter a number!")
         update()
 
+    # Make sure that the number input is for a relevant task, if not re run the update task. If it is okay run the actual updating function
     if task_to_update_input > len(to_do_list):
         print(f"Oops! You need to enter a number between 1 and {num - 1}")
         print(" ")
@@ -62,18 +65,8 @@ def update():
         task_to_update = to_do_list[task_to_update_input - 1]
 
         updating(task_to_update, task_to_update_input - 1)
-    """"
-    to_do_list.pop(task_to_update_input - 1)
-    print(updated_task)
-    to_do_list.insert(task_to_update_input - 1, updated_task)
 
-    # Add dictionary to JSON file
-    with open("tasks.JSON", "w") as outfile:
-        json.dump(to_do_list, outfile)
-
-    print("Task has been updated!")
-    """
-    start()
+        start()
 
 
 
@@ -84,33 +77,53 @@ def updating(task, update):
           [ 2 ] Status
           [ 3 ] Done
           """)
+
+    # Take input from user for what part of the task they want to update, catching the error of them not entering a number
     try:
         part_to_update = int(input())
     except ValueError:
         print("Oops! You need to enter a number!")
         updating(task, update)
 
-    if part_to_update == 1:
-        updated_task = input(f"Old task: {task['task']}. New task: ")
-        task["task"] = updated_task
+    # Make sure that user input a valid input for the options (1-3)
+    if part_to_update > 3:
+        print(f"Oops! You need to enter a number between 1 and 3")
+        print(" ")
         updating(task, update)
-    if part_to_update == 2:
-        updated_status = input(f"Old status: {task['status']}. New status: ")
-        task["status"] = updated_status
-        updating(task, update)
-    if part_to_update == 3:
-        # Access the JSON file with the tasks in
-        with open("tasks.JSON", "r") as openfile:
-            to_do_list = json.load(openfile)
+    else:
+        # Updating the task
+        if part_to_update == 1:
+            updated_task = input(f"Old task: {task['task']}. New task: ")
+            task["task"] = updated_task
+            updating(task, update)
+        # Updating the status
+        if part_to_update == 2:
+            updated_status = input(f"Old status: {task['status']}. New status: ")
+            task["status"] = updated_status
+            updating(task, update)
+        # Completing the update
+        if part_to_update == 3:
+            # Access the JSON file with the tasks in
+            with open("tasks.JSON", "r") as openfile:
+                to_do_list = json.load(openfile)
 
-        to_do_list.pop(update)
-        to_do_list.insert(update, task)
+            # Delete the old task and update with the new task
+            to_do_list.pop(update)
+            to_do_list.insert(update, task)
 
-        # Add dictionary to JSON file
-        with open("tasks.JSON", "w") as outfile:
-            json.dump(to_do_list, outfile)
+            # Add dictionary to JSON file
+            with open("tasks.JSON", "w") as outfile:
+                json.dump(to_do_list, outfile)
 
-        print("Task has been updated!")
+            print("Task has been updated!")
+            print("Updated list:")
+            num = 1
+
+            # Iterate over the list and print the tasks from their dictionaries
+            for task in to_do_list:
+                print(f"""     [ {num} ] Task: {task['task']}
+                    Status: {task['status']}""")
+                num += 1
 
 
 
@@ -134,6 +147,7 @@ def delete():
         print("Oops! You need to enter a number!")
         delete()
 
+    # Delete the selected task and reprint the list
     to_do_list.pop(task_to_delete - 1)
     num = 1
     for task in to_do_list:
