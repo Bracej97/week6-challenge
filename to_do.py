@@ -22,6 +22,14 @@ def add():
         json.dump(existing_tasks, outfile)
 
     print("Task has been added!")
+    print("To-do list:")
+    num = 1
+
+    # Iterate over the list and print the tasks from their dictionaries
+    for task in existing_tasks:
+        print(f"""     [ {num} ] Task: {task['task']}
+            Status: {task['status']}""")
+        num += 1
     start()
 
 def view():
@@ -149,6 +157,8 @@ def delete():
 
     # Delete the selected task and reprint the list
     to_do_list.pop(task_to_delete - 1)
+    print(" ")
+    print("Updated task list:")
     num = 1
     for task in to_do_list:
         print(f"""     [ {num} ] Task: {task['task']}
@@ -176,6 +186,10 @@ def start():
         """
     )
 
+    # Access the JSON file with the tasks in
+    with open("tasks.JSON", "r") as openfile:
+        to_do_list = json.load(openfile)
+
     # Allow the user to input their choice of what they want to do
     try:
         user_choice = int(input("Enter the number for what you want to do: "))
@@ -183,16 +197,39 @@ def start():
         print("You have made an invalid input. Please enter a number between 1 & 5")
         start()
 
-    # Run the command the user has chosen
-    if user_choice == 1:
-        add()
-    if user_choice == 2:
-        view()
-    if user_choice == 3:
-        update()
-    if user_choice == 4:
-        delete()
-    if user_choice == 5:
-        print("Thank you for viewing your to-do list.")
+    # If there is nothing on the to-do list ensure that user can only add tasks
+    if len(to_do_list) == 0:
+        if user_choice == 1:
+            add()
+        if user_choice == 2:
+            print("Your to-do list is currently empty. Action could not be completed")
+            start()
+        if user_choice == 3:
+            print("Your to-do list is currently empty. Action could not be completed")
+            start()
+        if user_choice == 4:
+            print("Your to-do list is currently empty. Action could not be completed")
+            start()
+        if user_choice == 5:
+            print("Thank you for viewing your to-do list.")
+        if user_choice >= 6:
+            print("You have made an invalid input. Please enter a number between 1 & 5")
+            start()
+
+    if len(to_do_list) > 0:
+        if user_choice >= 6:
+            print("You have made an invalid input. Please enter a number between 1 & 5")
+            start()
+        # Run the command the user has chosen
+        if user_choice == 1:
+            add()
+        if user_choice == 2:
+            view()
+        if user_choice == 3:
+            update()
+        if user_choice == 4:
+            delete()
+        if user_choice == 5:
+            print("Thank you for viewing your to-do list.")
 
 start()
